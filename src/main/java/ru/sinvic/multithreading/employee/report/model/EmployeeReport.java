@@ -1,4 +1,4 @@
-package ru.sinvic.multithreading.user.report.model;
+package ru.sinvic.multithreading.employee.report.model;
 
 import lombok.NonNull;
 

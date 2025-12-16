@@ -1,6 +1,6 @@
-package ru.sinvic.multithreading.user.report.service;
+package ru.sinvic.multithreading.employee.report.service;
 
-import ru.sinvic.multithreading.user.report.model.EmploymentInfo;
+import ru.sinvic.multithreading.employee.report.model.EmploymentInfo;
 
 import java.util.concurrent.CompletableFuture;
 

@@ -5,6 +5,6 @@ import ru.sinvic.multithreading.user.report.model.BasicUserInfo;
 
 import java.util.concurrent.CompletableFuture;
 
-public interface BasicUserInfoLoaderService {
+public interface UserInfoService {
     CompletableFuture<BasicUserInfo> fetchBasicInfo(long id) throws BasicUserInfoLoadingException;
 }

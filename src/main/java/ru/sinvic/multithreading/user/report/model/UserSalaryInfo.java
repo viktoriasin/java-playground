@@ -4,5 +4,5 @@ import lombok.NonNull;
 
 import java.math.BigDecimal;
 
-public record UserSalaryInfo(long userId, @NonNull BigDecimal salary) {
+public record UserSalaryInfo(long userId, BigDecimal salary) {
 }

@@ -4,6 +4,6 @@ import ru.sinvic.multithreading.user.report.model.UserSalaryInfo;
 
 import java.util.concurrent.CompletableFuture;
 
-public interface SalaryInfoLoaderService {
+public interface SalaryInfoService {
     CompletableFuture<UserSalaryInfo> fetchSalaryInfo(long id);
 }

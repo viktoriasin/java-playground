@@ -4,6 +4,6 @@ import ru.sinvic.multithreading.user.report.model.EmploymentData;
 
 import java.util.concurrent.CompletableFuture;
 
-public interface EmploymentDataLoaderService {
+public interface EmploymentDataService {
     CompletableFuture<EmploymentData> fetchEmploymentData(long id);
 }

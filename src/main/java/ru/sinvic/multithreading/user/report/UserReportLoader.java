@@ -6,11 +6,12 @@ import ru.sinvic.multithreading.user.report.model.BasicUserInfo;
 import ru.sinvic.multithreading.user.report.model.EmployeeReport;
 import ru.sinvic.multithreading.user.report.model.EmploymentData;
 import ru.sinvic.multithreading.user.report.model.UserSalaryInfo;
-import ru.sinvic.multithreading.user.report.service.BasicUserInfoLoaderService;
-import ru.sinvic.multithreading.user.report.service.EmploymentDataLoaderService;
-import ru.sinvic.multithreading.user.report.service.SalaryInfoLoaderService;
+import ru.sinvic.multithreading.user.report.service.UserInfoService;
+import ru.sinvic.multithreading.user.report.service.EmploymentDataService;
+import ru.sinvic.multithreading.user.report.service.SalaryInfoService;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 
@@ -18,9 +19,9 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class UserReportLoader {
 
-    private final BasicUserInfoLoaderService basicUserInfoLoaderService;
-    private final EmploymentDataLoaderService employmentDataLoaderService;
-    private final SalaryInfoLoaderService salaryInfoLoaderService;
+    private final UserInfoService userInfoService;
+    private final EmploymentDataService employmentDataService;
+    private final SalaryInfoService salaryInfoService;
 
     public CompletableFuture<EmployeeReport> loadReport(long id) throws BasicUserInfoLoadingException {
 
@@ -36,16 +37,20 @@ public class UserReportLoader {
             );
     }
 
-    private CompletableFuture<UserSalaryInfo> loadSalaryInfo(long id) {
-        return salaryInfoLoaderService.fetchSalaryInfo(id).exceptionally(_ -> new UserSalaryInfo(id, null));
+    private CompletableFuture<Optional<UserSalaryInfo>> loadSalaryInfo(long id) {
+        return salaryInfoService.fetchSalaryInfo(id)
+            .thenApply(Optional::of)
+            .exceptionally(ex -> Optional.empty());
     }
 
-    private CompletableFuture<EmploymentData> loadEmploymentInfo(long id) {
-        return employmentDataLoaderService.fetchEmploymentData(id).exceptionally(_ -> new EmploymentData(id, null, null));
+    private CompletableFuture<Optional<EmploymentData>> loadEmploymentInfo(long id) {
+        return employmentDataService.fetchEmploymentData(id)
+            .thenApply(Optional::of)
+            .exceptionally(_ -> Optional.empty());
     }
 
     private CompletableFuture<BasicUserInfo> loadBasicInfo(long id) {
-        return basicUserInfoLoaderService.fetchBasicInfo(id)
+        return userInfoService.fetchBasicInfo(id)
             .exceptionally(ex -> {
                 throw new BasicUserInfoLoadingException(ex.getMessage());
             });

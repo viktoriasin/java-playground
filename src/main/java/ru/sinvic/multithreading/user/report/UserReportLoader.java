@@ -1,14 +1,14 @@
-package ru.sinvic.multithreading.userdatareport;
+package ru.sinvic.multithreading.user.report;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import ru.sinvic.multithreading.userdatareport.model.BasicUserInfo;
-import ru.sinvic.multithreading.userdatareport.model.EmployeeReport;
-import ru.sinvic.multithreading.userdatareport.model.EmploymentData;
-import ru.sinvic.multithreading.userdatareport.model.UserSalaryInfo;
-import ru.sinvic.multithreading.userdatareport.service.BasicUserInfoLoaderService;
-import ru.sinvic.multithreading.userdatareport.service.EmploymentDataLoaderService;
-import ru.sinvic.multithreading.userdatareport.service.SalaryInfoLoaderService;
+import ru.sinvic.multithreading.user.report.model.BasicUserInfo;
+import ru.sinvic.multithreading.user.report.model.EmployeeReport;
+import ru.sinvic.multithreading.user.report.model.EmploymentData;
+import ru.sinvic.multithreading.user.report.model.UserSalaryInfo;
+import ru.sinvic.multithreading.user.report.service.BasicUserInfoLoaderService;
+import ru.sinvic.multithreading.user.report.service.EmploymentDataLoaderService;
+import ru.sinvic.multithreading.user.report.service.SalaryInfoLoaderService;
 
 import java.time.LocalDateTime;
 import java.util.concurrent.CompletableFuture;

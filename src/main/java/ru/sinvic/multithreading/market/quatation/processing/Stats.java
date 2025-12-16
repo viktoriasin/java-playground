@@ -1,4 +1,4 @@
-package ru.sinvic.multithreading.marketquatationprocessing;
+package ru.sinvic.multithreading.market.quatation.processing;
 
 import lombok.NonNull;
 

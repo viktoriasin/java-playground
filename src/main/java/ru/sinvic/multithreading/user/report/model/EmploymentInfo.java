@@ -1,8 +1,6 @@
 package ru.sinvic.multithreading.user.report.model;
 
-import lombok.NonNull;
-
-public record EmploymentData(long userId,
+public record EmploymentInfo(long userId,
                              String position,
                              String department) {
 }

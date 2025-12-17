@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 public class DeliveryStrategyTest {
@@ -29,6 +30,21 @@ public class DeliveryStrategyTest {
         assertTrue(BigDecimal.valueOf(25).compareTo(deliveryStrategy.calculateDelivery(deliveryParameters)) == 0);
     }
 
+    @Test
+    public void shouldThrowExceptionWhenDeliveryParametersAreInvalid() {
+        assertThrows(IllegalArgumentException.class, () -> new DeliveryParameters(-1, 5));
+        assertThrows(IllegalArgumentException.class, () -> new DeliveryParameters(34, 0));
+        assertThrows(IllegalArgumentException.class, () -> new DeliveryParameters(34, -3));
+        assertThrows(IllegalArgumentException.class, () -> new DeliveryParameters(0, 10));
+    }
 
+    @Test
+    public void shouldThrowExceptionWhenDeliveryAreNotSet() {
+        assertThrows(IllegalArgumentException.class, () -> DeliveryService.calculateDelivery(null, new DeliveryParameters(10, 10)));
+    }
 
+    @Test
+    public void shouldThrowExceptionWhenDeliveryParametersAreNotSet() {
+        assertThrows(IllegalArgumentException.class, () -> DeliveryService.calculateDelivery(new PickupDeliveryStrategy(), null));
+    }
 }

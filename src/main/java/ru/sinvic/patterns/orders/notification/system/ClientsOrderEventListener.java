@@ -13,7 +13,7 @@ import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
-public class ClientOrderEventListener implements OrderEventListener {
+public class ClientsOrderEventListener implements OrderEventListener {
 
     private static final String MESSENGER_CHAT = "orders_updates";
     private final EmailService emailService;

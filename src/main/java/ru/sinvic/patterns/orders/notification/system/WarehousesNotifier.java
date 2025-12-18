@@ -13,7 +13,7 @@ public class WarehousesNotifier implements OrderEventListener {
     private final WarehouseService warehouseService;
 
     @Override
-    public void update(@NonNull Order order) {
+    public void notify(@NonNull Order order) {
         try {
             warehouseService.notifyForOrder(order);
         } catch (WarehouseServiceException ex) {

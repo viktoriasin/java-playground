@@ -9,7 +9,7 @@ import ru.sinvic.patterns.orders.notification.system.service.WarehouseService;
 
 @Slf4j
 @RequiredArgsConstructor
-public class WarehousesOrderEventListener implements OrderEventListener {
+public class WarehousesNotifier implements OrderEventListener {
     private final WarehouseService warehouseService;
 
     @Override

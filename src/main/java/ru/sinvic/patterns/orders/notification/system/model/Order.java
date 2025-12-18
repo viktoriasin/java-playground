@@ -1,4 +1,4 @@
-package ru.sinvic.patterns.orders.notification.system;
+package ru.sinvic.patterns.orders.notification.system.model;
 
 import lombok.NonNull;
 

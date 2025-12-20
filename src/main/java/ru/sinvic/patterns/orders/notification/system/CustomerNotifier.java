@@ -15,7 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CustomerNotifier implements OrderEventListener {
 
-    private static final String MESSENGER_CHAT = "orders_updates";
+    private static final String MESSENGER_CHAT = "orders_updates"; // для простоты захардкодим
     private final EmailService emailService;
     private final MessengerService messengerService;
 

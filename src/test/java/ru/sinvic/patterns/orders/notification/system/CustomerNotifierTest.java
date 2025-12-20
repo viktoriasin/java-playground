@@ -50,7 +50,7 @@ class CustomerNotifierTest {
 
     @Test
     void shouldSendEmailsAndMessagesAfterNotificationHappens() {
-        customerNotifier.notify();
+        customerNotifier.update(order);
 
         verify(messengerService, times(1)).sendMessage(ArgumentMatchers.any(), ArgumentMatchers.any());
         verify(emailService, times(2)).sendEmail(ArgumentMatchers.any(), ArgumentMatchers.any());

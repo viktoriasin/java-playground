@@ -22,7 +22,7 @@ public class CustomerNotifier implements OrderEventListener {
     private final List<String> clientsEmails; // для простоты зададим в конструкторе
 
     @Override
-    public void notify(@NonNull Order order) {
+    public void update(@NonNull Order order) {
         String text = STR."Order \{order.id()} has changed";
         sendEmail(text);
         sendMessage(text);

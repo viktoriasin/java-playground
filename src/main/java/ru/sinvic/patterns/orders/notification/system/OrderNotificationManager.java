@@ -26,7 +26,7 @@ public class OrderNotificationManager {
 
     public void update(@NonNull Order order) {
         for (OrderEventListener listener : orderSubscriberList) {
-            listener.notify(order);
+            listener.update(order);
         }
     }
 }

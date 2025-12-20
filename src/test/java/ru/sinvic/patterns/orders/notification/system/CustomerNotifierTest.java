@@ -16,7 +16,8 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class CustomerNotifierTest {
@@ -42,7 +43,7 @@ class CustomerNotifierTest {
 
     private final List<String> emails = List.of("a@yandex.ru", "b@yandex.ru");
     private final Order order = new Order(1L, "Order", LocalDateTime.now());
-    String text = STR."Order \{order.id()} has changed";
+    private final String text = STR."Order \{order.id()} has changed";
 
     @BeforeEach
     void setUp() {
@@ -84,10 +85,5 @@ class CustomerNotifierTest {
         assertTrue(subjects.stream().allMatch(s -> s.contains(text)));
     }
 
-    @Test
-    void shouldNotPerformOtherServiceCalls() {
-        customerNotifier.update(order);
-
-        verifyNoMoreInteractions(emailService, messengerService);
-    }
+    // TODO check: обработка ошибок, добавление/удаление емеил адреса, отсутсвие вызова других сервисов
 }

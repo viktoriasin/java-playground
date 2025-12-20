@@ -15,7 +15,7 @@ public class WarehousesNotifier implements OrderEventListener {
     @Override
     public void notify(@NonNull Order order) {
         try {
-            warehouseService.notifyForOrder(order);
+            warehouseService.sendMessage(order);
         } catch (WarehouseServiceException ex) {
             log.error(STR."Can not send message to warehouse. \{ex.getMessage()}");
         }

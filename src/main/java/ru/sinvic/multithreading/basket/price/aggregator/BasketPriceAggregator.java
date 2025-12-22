@@ -10,7 +10,6 @@ import ru.sinvic.multithreading.basket.price.aggregator.dto.promo.PromoCashBack;
 import ru.sinvic.multithreading.basket.price.aggregator.dto.promo.PromoDiscount;
 import ru.sinvic.multithreading.basket.price.aggregator.exception.BasketException;
 import ru.sinvic.multithreading.basket.price.aggregator.model.BasketResult;
-import ru.sinvic.multithreading.basket.price.aggregator.model.BasketTotalPriceInfo;
 import ru.sinvic.multithreading.basket.price.aggregator.service.PriceService;
 import ru.sinvic.multithreading.basket.price.aggregator.service.TaxService;
 
@@ -26,6 +25,12 @@ public class BasketPriceAggregator {
 
     private final PriceService priceService;
     private final TaxService taxService;
+
+    private static void checkBasket(int size) {
+        if (size > 1000) {
+            throw new BasketException(STR."Basket size must not be greater than 1000!Get \{size}")
+        }
+    }
 
     public CompletableFuture<BasketResult> calculateCart(List<BasketItem> items) {
         checkBasket(items.size());
@@ -81,12 +86,6 @@ public class BasketPriceAggregator {
             }
         }
         return priceWithDiscount;
-    }
-
-    private static void checkBasket(int size) {
-        if (size > 1000) {
-            throw new BasketException(STR."Basket size must not be greater than 1000!Get \{size}")
-        }
     }
 
     private record ItemFinalPriceInfo(@NonNull BigDecimal priceWIthDiscounts,

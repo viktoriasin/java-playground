@@ -1,4 +1,4 @@
-package ru.sinvic.multithreading.basket.price.aggregator.dto;
+package ru.sinvic.multithreading.basket.price.aggregator.dto.promo;
 
 import java.math.BigDecimal;
 

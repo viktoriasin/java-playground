@@ -1,8 +1,8 @@
-package ru.sinvic.multithreading.basket.price.aggregator.dto;
+package ru.sinvic.multithreading.basket.price.aggregator.dto.promo;
 
 import java.math.BigDecimal;
 
-public class FixedDiscountPromo extends Promo {
+public class FixedDiscountPromo extends PromoDiscount {
     private final BigDecimal baseProductPrice;
 
     public FixedDiscountPromo(double value, BigDecimal baseProductPrice) {
@@ -15,5 +15,10 @@ public class FixedDiscountPromo extends Promo {
         if (value <= 0 || value >= baseProductPrice.doubleValue()) {
             throw new IllegalArgumentException(STR."Fixed discount value \{value} incorrect");
         }
+    }
+
+    @Override
+    public BigDecimal applyPromo(BigDecimal priceWithoutDiscount) {
+        return priceWithoutDiscount.subtract(BigDecimal.valueOf(value));
     }
 }

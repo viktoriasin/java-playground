@@ -9,6 +9,7 @@ import ru.sinvic.multithreading.basket.price.aggregator.dto.promo.Promo;
 import ru.sinvic.multithreading.basket.price.aggregator.dto.promo.PromoCashBack;
 import ru.sinvic.multithreading.basket.price.aggregator.dto.promo.PromoDiscount;
 import ru.sinvic.multithreading.basket.price.aggregator.exception.BasketException;
+import ru.sinvic.multithreading.basket.price.aggregator.model.BasketResult;
 import ru.sinvic.multithreading.basket.price.aggregator.model.BasketTotalPriceInfo;
 import ru.sinvic.multithreading.basket.price.aggregator.service.PriceService;
 import ru.sinvic.multithreading.basket.price.aggregator.service.TaxService;
@@ -17,6 +18,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -25,11 +27,20 @@ public class BasketPriceAggregator {
     private final PriceService priceService;
     private final TaxService taxService;
 
-    public CompletableFuture<BasketTotalPriceInfo> calculateCart(List<BasketItem> items) {
+    public CompletableFuture<BasketResult> calculateCart(List<BasketItem> items) {
         checkBasket(items.size());
 
-        List<CompletableFuture<ItemFinalPriceInfo>> list = items.stream().map(this::calculateItemPrice).toList();
-        return null;
+        List<CompletableFuture<ItemFinalPriceInfo>> itemsFuture = items.stream().map(this::calculateItemPrice).toList();
+        CompletableFuture<List<ItemFinalPriceInfo>> listCompletableFuture = CompletableFuture.allOf(itemsFuture.toArray(new CompletableFuture[0]))
+            .thenApply(_ -> itemsFuture.stream()
+                .map(CompletableFuture::join)
+                .toList());
+        return listCompletableFuture.thenApply(this::getFinalTotalPriceInfo)
+            .orTimeout(2, TimeUnit.SECONDS)
+            .exceptionally(ex -> {
+                log.error(STR."Calculation failed: \{ex.getMessage()}");
+                return new BasketResult(null, (Exception) ex);
+            });
     }
 
     private CompletableFuture<ItemFinalPriceInfo> calculateItemPrice(BasketItem item) {

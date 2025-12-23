@@ -41,20 +41,17 @@ public class BasketPriceAggregator {
     }
 
     private BasketResult getBasketTotalPriceInfo(List<ItemFinalPriceInfo> itemFinalPriceInfoList, long basketId) {
-        BigDecimal totalBasketPrice = BigDecimal.ZERO;
-        BigDecimal cashBack = BigDecimal.ZERO;
-        for (ItemFinalPriceInfo itemFinalPriceInfo : itemFinalPriceInfoList) {
-            BigDecimal priceWithDiscounts = itemFinalPriceInfo.priceWithDiscounts;
-            totalBasketPrice = totalBasketPrice.add(priceWithDiscounts);
-            cashBack = cashBack.add(itemFinalPriceInfo.cashBack.orElse(BigDecimal.ZERO));
-        }
-        Optional<BigDecimal> cashBackOptional;
+        BigDecimal totalBasketPrice = itemFinalPriceInfoList.stream()
+            .map(item -> item.priceWithDiscounts)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        if (cashBack.compareTo(BigDecimal.ZERO) == 0) {
-            cashBackOptional = Optional.empty();
-        } else {
-            cashBackOptional = Optional.of(cashBack);
-        }
+        BigDecimal cashBack = itemFinalPriceInfoList.stream()
+            .map(item -> item.cashBack.orElse(BigDecimal.ZERO))
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        Optional<BigDecimal> cashBackOptional = cashBack.signum() == 0
+            ? Optional.empty()
+            : Optional.of(cashBack);
         return new BasketResult(new BasketTotalPriceInfo(basketId, totalBasketPrice, cashBackOptional), null);
     }
 

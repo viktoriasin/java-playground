@@ -45,8 +45,8 @@ public class BasketPriceAggregator {
         BigDecimal cashBack = BigDecimal.ZERO;
         for (ItemFinalPriceInfo itemFinalPriceInfo : itemFinalPriceInfoList) {
             BigDecimal priceWithDiscounts = itemFinalPriceInfo.priceWithDiscounts;
-            totalBasketPrice.add(priceWithDiscounts);
-            cashBack.add(itemFinalPriceInfo.cashBack.orElse(BigDecimal.ZERO));
+            totalBasketPrice = totalBasketPrice.add(priceWithDiscounts);
+            cashBack = cashBack.add(itemFinalPriceInfo.cashBack.orElse(BigDecimal.ZERO));
         }
         Optional<BigDecimal> cashBackOptional;
 

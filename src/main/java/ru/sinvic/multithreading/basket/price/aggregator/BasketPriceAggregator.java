@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -23,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 public class BasketPriceAggregator {
 
     private final PriceService priceService;
+    private final ExecutorService executorService;
 
     public CompletableFuture<BasketResult> calculateCart(List<BasketItem> items, long basketId) {
         checkBasket(items.size());

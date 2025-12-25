@@ -23,7 +23,7 @@ public class BasketPriceAggregatorTest {
 
     @Test
     public void testParallelProcessingWithTimeout() throws Exception {
-        PriceService priceService = productId -> {
+        PriceService priceService = _ -> {
             long delay = 100 + (long) (Math.random() * 300);
 
             Thread.sleep(delay);

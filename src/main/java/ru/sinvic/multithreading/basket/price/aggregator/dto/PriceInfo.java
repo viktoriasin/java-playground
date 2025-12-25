@@ -7,13 +7,19 @@ import ru.sinvic.multithreading.basket.price.aggregator.dto.promo.PromoCashBack;
 import java.math.BigDecimal;
 import java.util.List;
 
-public record PriceInfo(long productId, @NonNull BigDecimal basePrice, @NonNull List<Promo> promoTypes) {
+public record PriceInfo(long productId, BigDecimal basePrice, List<Promo> promoTypes) {
     public PriceInfo {
-        checkCashBackPromoQuantity();
-        checkBasePrice();
+        if (basePrice == null) {
+            throw new IllegalArgumentException("BasePrice cannot be null");
+        }
+        if (promoTypes == null) {
+            throw new IllegalArgumentException("PromoTypes cannot be null");
+        }
+        checkCashBackPromoQuantity(promoTypes);
+        checkBasePrice(basePrice);
     }
 
-    private void checkCashBackPromoQuantity() {
+    private void checkCashBackPromoQuantity(@NonNull List<Promo> promoTypes) {
         long cashBackPromoCount = promoTypes.stream()
             .filter(promo -> promo instanceof PromoCashBack)
             .count();
@@ -22,7 +28,7 @@ public record PriceInfo(long productId, @NonNull BigDecimal basePrice, @NonNull 
         }
     }
 
-    private void checkBasePrice() {
+    private void checkBasePrice(@NonNull BigDecimal basePrice) {
         if (basePrice.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException(STR."Base price can not be less than or equal to zero! Get: \{basePrice}");
         }

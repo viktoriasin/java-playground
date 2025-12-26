@@ -34,26 +34,14 @@ class BasketPriceAggregatorTest {
 
     @Test
     void testParallelProcessingWithTimeout() throws Exception {
-        PriceService priceService = _ -> {
-            long delay = 100 + (long) (Math.random() * 300);
-
-            Thread.sleep(delay);
-            return new PriceInfo(1L, BigDecimal.TEN, Collections.emptyList());
-        };
-
+        PriceService priceService = mockPriceService(false);
         ExecutorService executorService = Executors.newFixedThreadPool(4);
         BasketPriceAggregator basketPriceAggregator = new BasketPriceAggregator(priceService, executorService);
-
         CompletableFuture<BasketResult> basketResultCompletableFuture = basketPriceAggregator.calculateCart(basketItems, 1L);
 
         try {
             BasketResult basketResult = basketResultCompletableFuture.get(2, TimeUnit.SECONDS);
-            System.out.println(basketResult);
-            assertNull(basketResult.ex());
-            assertNotNull(basketResult.basketTotalPriceInfo());
-            BasketTotalPriceInfo basketTotalPriceInfo = basketResult.basketTotalPriceInfo();
-            assertEquals(basketTotalPriceInfo.priceWIthDiscounts().compareTo(BigDecimal.valueOf(500L)), 0);
-            assertTrue(basketTotalPriceInfo.cashBack().isEmpty());
+            basicAssertionsOnBasketResult(basketResult, BigDecimal.valueOf(500L));
         } catch (TimeoutException e) {
             fail(STR."Расчёт не уложился в 2 секунды: \{e.getMessage()}");
         } catch (ExecutionException e) {
@@ -64,5 +52,28 @@ class BasketPriceAggregatorTest {
                 executorService.shutdownNow();
             }
         }
+    }
+
+    private void basicAssertionsOnBasketResult(BasketResult basketResult, BigDecimal expectedFinalPrice) {
+        assertNull(basketResult.ex());
+        assertNotNull(basketResult.basketTotalPriceInfo());
+        BasketTotalPriceInfo basketTotalPriceInfo = basketResult.basketTotalPriceInfo();
+        assertEquals(basketTotalPriceInfo.priceWIthDiscounts().compareTo(expectedFinalPrice), 0);
+        assertTrue(basketTotalPriceInfo.cashBack().isEmpty());
+    }
+
+    private PriceService mockPriceService(boolean withIncorrectPriceInfo) {
+        return _ -> {
+            long delay = 100 + (long) (Math.random() * 300);
+
+            if (withIncorrectPriceInfo) {
+                if (Math.random() > 0.7) {
+                    return new PriceInfo(1L, BigDecimal.ZERO, Collections.emptyList());
+                }
+            }
+
+            Thread.sleep(delay);
+            return new PriceInfo(1L, BigDecimal.TEN, Collections.emptyList());
+        };
     }
 }

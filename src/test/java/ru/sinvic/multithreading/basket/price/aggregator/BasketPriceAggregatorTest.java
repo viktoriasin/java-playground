@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.LongStream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -54,6 +55,28 @@ class BasketPriceAggregatorTest {
         }
     }
 
+    @Test
+    void testParallelProcessingWithIncorrectPriceInfoData()  throws Exception {
+        PriceService priceService = mockPriceService(true);
+        ExecutorService executorService = Executors.newFixedThreadPool(4);
+        BasketPriceAggregator basketPriceAggregator = new BasketPriceAggregator(priceService, executorService);
+        CompletableFuture<BasketResult> basketResultCompletableFuture = basketPriceAggregator.calculateCart(basketItems, 1L);
+
+        try {
+            BasketResult basketResult = basketResultCompletableFuture.get(2, TimeUnit.SECONDS);
+            basicAssertionsOnBasketResult(basketResult, BigDecimal.valueOf(480));
+        } catch (TimeoutException e) {
+            fail(STR."Расчёт не уложился в 2 секунды: \{e.getMessage()}");
+        } catch (ExecutionException e) {
+            fail(STR."Ошибка при расчёте корзины: \{e.getCause().getMessage()}");
+        } finally {
+            executorService.shutdown();
+            if (!executorService.awaitTermination(5, TimeUnit.SECONDS)) {
+                executorService.shutdownNow();
+            }
+        }
+    }
+
     private void basicAssertionsOnBasketResult(BasketResult basketResult, BigDecimal expectedFinalPrice) {
         assertNull(basketResult.ex());
         assertNotNull(basketResult.basketTotalPriceInfo());
@@ -63,13 +86,14 @@ class BasketPriceAggregatorTest {
     }
 
     private PriceService mockPriceService(boolean withIncorrectPriceInfo) {
+        // для точного контроля, сколько товаров не будут учтены в финальной цене
+        AtomicInteger countIncorrectPriceInfoInstance = new AtomicInteger(2);
         return _ -> {
             long delay = 100 + (long) (Math.random() * 300);
 
-            if (withIncorrectPriceInfo) {
-                if (Math.random() > 0.7) {
+            if (withIncorrectPriceInfo && countIncorrectPriceInfoInstance.get() > 0) {
+                    countIncorrectPriceInfoInstance.getAndDecrement();
                     return new PriceInfo(1L, BigDecimal.ZERO, Collections.emptyList());
-                }
             }
 
             Thread.sleep(delay);

@@ -1,7 +1,7 @@
 package ru.sinvic.multithreading.basket.price.aggregator;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.sinvic.multithreading.basket.price.aggregator.dto.BasketItem;
@@ -11,6 +11,7 @@ import ru.sinvic.multithreading.basket.price.aggregator.model.BasketTotalPriceIn
 import ru.sinvic.multithreading.basket.price.aggregator.service.PriceService;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.*;
@@ -30,12 +31,11 @@ class BasketPriceAggregatorTest {
         basketItems = LongStream.range(0, 50)
             .mapToObj(i -> new BasketItem(i, 1L, 1))
             .toList();
-
     }
 
     @Test
     void testParallelProcessingWithTimeout() throws Exception {
-        PriceService priceService = mockPriceService(false);
+        PriceService priceService = mockPriceService(false, false);
         ExecutorService executorService = Executors.newFixedThreadPool(4);
         BasketPriceAggregator basketPriceAggregator = new BasketPriceAggregator(priceService, executorService);
         CompletableFuture<BasketResult> basketResultCompletableFuture = basketPriceAggregator.calculateCart(basketItems, 1L);
@@ -57,7 +57,7 @@ class BasketPriceAggregatorTest {
 
     @Test
     void testParallelProcessingWithIncorrectPriceInfoData()  throws Exception {
-        PriceService priceService = mockPriceService(true);
+        PriceService priceService = mockPriceService(true, false);
         ExecutorService executorService = Executors.newFixedThreadPool(4);
         BasketPriceAggregator basketPriceAggregator = new BasketPriceAggregator(priceService, executorService);
         CompletableFuture<BasketResult> basketResultCompletableFuture = basketPriceAggregator.calculateCart(basketItems, 1L);
@@ -77,6 +77,18 @@ class BasketPriceAggregatorTest {
         }
     }
 
+    @Test
+    void testPriceServiceTimeout() {
+        PriceService priceService = mockPriceService(false, true);
+        ExecutorService executorService = Executors.newFixedThreadPool(4);
+        BasketPriceAggregator basketPriceAggregator = new BasketPriceAggregator(priceService, executorService);
+
+        assertTimeout(Duration.ofMillis(2000),
+            () -> basketPriceAggregator.calculateCart(basketItems, 1L));
+
+        executorService.shutdown();
+    }
+
     private void basicAssertionsOnBasketResult(BasketResult basketResult, BigDecimal expectedFinalPrice) {
         assertNull(basketResult.ex());
         assertNotNull(basketResult.basketTotalPriceInfo());
@@ -85,7 +97,7 @@ class BasketPriceAggregatorTest {
         assertTrue(basketTotalPriceInfo.cashBack().isEmpty());
     }
 
-    private PriceService mockPriceService(boolean withIncorrectPriceInfo) {
+    private PriceService mockPriceService(boolean withIncorrectPriceInfo, boolean withLongDelay) {
         // для точного контроля, сколько товаров не будут учтены в финальной цене
         AtomicInteger countIncorrectPriceInfoInstance = new AtomicInteger(2);
         return _ -> {
@@ -96,7 +108,11 @@ class BasketPriceAggregatorTest {
                     return new PriceInfo(1L, BigDecimal.ZERO, Collections.emptyList());
             }
 
-            Thread.sleep(delay);
+            if (withLongDelay) {
+                Thread.sleep(3000);
+            } else {
+                Thread.sleep(delay);
+            }
             return new PriceInfo(1L, BigDecimal.TEN, Collections.emptyList());
         };
     }

@@ -1,6 +1,7 @@
 package ru.sinvic.multithreading.basket.price.aggregator;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.sinvic.multithreading.basket.price.aggregator.dto.BasketItem;
@@ -19,21 +20,26 @@ import static org.junit.jupiter.api.Assertions.*;
 
 
 @ExtendWith(MockitoExtension.class)
-public class BasketPriceAggregatorTest {
+class BasketPriceAggregatorTest {
+
+    private List<BasketItem> basketItems;
+
+    @BeforeEach
+    public void beforeEach() {
+        basketItems = LongStream.range(0, 50)
+            .mapToObj(i -> new BasketItem(i, 1L, 1))
+            .toList();
+
+    }
 
     @Test
-    public void testParallelProcessingWithTimeout() throws Exception {
+    void testParallelProcessingWithTimeout() throws Exception {
         PriceService priceService = _ -> {
             long delay = 100 + (long) (Math.random() * 300);
 
             Thread.sleep(delay);
-
             return new PriceInfo(1L, BigDecimal.TEN, Collections.emptyList());
         };
-
-        List<BasketItem> basketItems = LongStream.range(0, 50)
-            .mapToObj(i -> new BasketItem(i, 1L, 1))
-            .toList();
 
         ExecutorService executorService = Executors.newFixedThreadPool(4);
         BasketPriceAggregator basketPriceAggregator = new BasketPriceAggregator(priceService, executorService);
@@ -42,7 +48,7 @@ public class BasketPriceAggregatorTest {
 
         try {
             BasketResult basketResult = basketResultCompletableFuture.get(2, TimeUnit.SECONDS);
-
+            System.out.println(basketResult);
             assertNull(basketResult.ex());
             assertNotNull(basketResult.basketTotalPriceInfo());
             BasketTotalPriceInfo basketTotalPriceInfo = basketResult.basketTotalPriceInfo();
